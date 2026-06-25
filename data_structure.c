@@ -3,44 +3,44 @@
 #include <stdio.h>
 #include <string.h>
 
-void copy_record(CourseRecord *dst, const CourseRecord *src) {
-    if (dst == NULL || src == NULL) {
+void copy_record(CourseRecord *Destination, const CourseRecord *Source) {
+    if (Destination == NULL || Source == NULL) {
         return;
     }
-    *dst = *src;
+    *Destination = *Source;
 }
 
-void print_record(const CourseRecord *record) {
-    if (record == NULL) {
+void print_record(const CourseRecord *Record) {
+    if (Record == NULL) {
         return;
     }
 
     printf("学号:%s | 姓名:%s | 课程:%s | 成绩:%d\n",
-           record->student_id,
-           record->student_name,
-           record->course_name,
-           record->score);
+           Record->student_id,
+           Record->student_name,
+           Record->course_name,
+           Record->score);
 }
 
-unsigned int hash_code(const char *value) {
-    unsigned int seed = 131;
-    unsigned int hash = 0;
+unsigned int hash_code(const char *Value) {
+    unsigned int Seed = 131;
+    unsigned int Hash = 0;
 
-    if (value == NULL) {
+    if (Value == NULL) {
         return 0;
     }
 
-    while (*value) {
-        hash = hash * seed + (unsigned char)(*value++);
+    while (*Value) {
+        Hash = Hash * Seed + (unsigned char)(*Value++);
     }
 
-    return hash;
+    return Hash;
 }
 
-bool is_record_expired(const CourseRecord *record, const char *base_date) {
-    if (record == NULL || base_date == NULL) {
+bool is_record_expired(const CourseRecord *Record, const char *BaseDate) {
+    if (Record == NULL || BaseDate == NULL) {
         return false;
     }
 
-    return strcmp(record->selected_date, base_date) < 0;
+    return strcmp(Record->selected_date, BaseDate) < 0;
 }

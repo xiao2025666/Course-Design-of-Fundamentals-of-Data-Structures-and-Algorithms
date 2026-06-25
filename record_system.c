@@ -6,194 +6,188 @@
 
 #include "record_system.h"
 
-static bool EnsureCapacity(RecordDatabase *db) {
-    if (db->count < db->capacity) {
+static bool EnsureCapacity(RecordDatabase *Database) {
+    if (Database->count < Database->capacity) {
         return true;
     }
 
-    int new_capacity = db->capacity == 0 ? 128 : db->capacity * 2;
-    SelectionRecord *new_records = (SelectionRecord *)realloc(db->records, sizeof(SelectionRecord) * new_capacity);
-    if (new_records == NULL) {
+    int NewCapacity = Database->capacity == 0 ? 128 : Database->capacity * 2;
+    SelectionRecord *NewRecords = (SelectionRecord *)realloc(Database->records, sizeof(SelectionRecord) * NewCapacity);
+    if (NewRecords == NULL) {
         return false;
     }
 
-    db->records = new_records;
-    db->capacity = new_capacity;
+    Database->records = NewRecords;
+    Database->capacity = NewCapacity;
     return true;
 }
 
-static int CompareDate(const char *date1, const char *date2) {
-    return strcmp(date1, date2);
+static int CompareDate(const char *Date1, const char *Date2) {
+    return strcmp(Date1, Date2);
 }
 
-static void ClearInputBuffer(void) {
-    int ch;
-    while ((ch = getchar()) != '\n' && ch != EOF) {
-    }
-}
-
-void RecordDatabaseInit(RecordDatabase *db) {
-    if (db == NULL) {
+void RecordDatabaseInit(RecordDatabase *Database) {
+    if (Database == NULL) {
         return;
     }
 
-    db->records = NULL;
-    db->count = 0;
-    db->capacity = 0;
+    Database->records = NULL;
+    Database->count = 0;
+    Database->capacity = 0;
 }
 
-void RecordDatabaseFree(RecordDatabase *db) {
-    if (db == NULL) {
+void RecordDatabaseFree(RecordDatabase *Database) {
+    if (Database == NULL) {
         return;
     }
 
-    free(db->records);
-    db->records = NULL;
-    db->count = 0;
-    db->capacity = 0;
+    free(Database->records);
+    Database->records = NULL;
+    Database->count = 0;
+    Database->capacity = 0;
 }
 
-bool LoadRecordsFromCsv(RecordDatabase *db, const char *path) {
-    if (db == NULL || path == NULL) {
+bool LoadRecordsFromCsv(RecordDatabase *Database, const char *Path) {
+    if (Database == NULL || Path == NULL) {
         return false;
     }
 
-    FILE *fp = fopen(path, "r");
-    if (fp == NULL) {
+    FILE *FilePointer = fopen(Path, "r");
+    if (FilePointer == NULL) {
         return false;
     }
 
-    char line[1024];
-    int line_no = 0;
+    char Line[1024];
+    int LineNo = 0;
 
-    while (fgets(line, sizeof(line), fp) != NULL) {
-        line_no++;
-        if (line_no == 1) {
+    while (fgets(Line, sizeof(Line), FilePointer) != NULL) {
+        LineNo++;
+        if (LineNo == 1) {
             continue;
         }
 
-        SelectionRecord record;
-        memset(&record, 0, sizeof(record));
+        SelectionRecord Record;
+        memset(&Record, 0, sizeof(Record));
 
-        char *token = strtok(line, ",\n\r");
-        if (token == NULL) {
+        char *Token = strtok(Line, ",\n\r");
+        if (Token == NULL) {
             continue;
         }
-        snprintf(record.student_id, sizeof(record.student_id), "%s", token);
+        snprintf(Record.student_id, sizeof(Record.student_id), "%s", Token);
 
-        token = strtok(NULL, ",\n\r");
-        if (token == NULL) {
+        Token = strtok(NULL, ",\n\r");
+        if (Token == NULL) {
             continue;
         }
-        snprintf(record.student_name, sizeof(record.student_name), "%s", token);
+        snprintf(Record.student_name, sizeof(Record.student_name), "%s", Token);
 
-        token = strtok(NULL, ",\n\r");
-        if (token == NULL) {
+        Token = strtok(NULL, ",\n\r");
+        if (Token == NULL) {
             continue;
         }
-        snprintf(record.college, sizeof(record.college), "%s", token);
+        snprintf(Record.college, sizeof(Record.college), "%s", Token);
 
-        token = strtok(NULL, ",\n\r");
-        if (token == NULL) {
+        Token = strtok(NULL, ",\n\r");
+        if (Token == NULL) {
             continue;
         }
-        snprintf(record.course_id, sizeof(record.course_id), "%s", token);
+        snprintf(Record.course_id, sizeof(Record.course_id), "%s", Token);
 
-        token = strtok(NULL, ",\n\r");
-        if (token == NULL) {
+        Token = strtok(NULL, ",\n\r");
+        if (Token == NULL) {
             continue;
         }
-        snprintf(record.course_name, sizeof(record.course_name), "%s", token);
+        snprintf(Record.course_name, sizeof(Record.course_name), "%s", Token);
 
-        token = strtok(NULL, ",\n\r");
-        if (token == NULL) {
+        Token = strtok(NULL, ",\n\r");
+        if (Token == NULL) {
             continue;
         }
-        record.credit = (float)atof(token);
+        Record.credit = (float)atof(Token);
 
-        token = strtok(NULL, ",\n\r");
-        if (token == NULL) {
+        Token = strtok(NULL, ",\n\r");
+        if (Token == NULL) {
             continue;
         }
-        snprintf(record.semester, sizeof(record.semester), "%s", token);
+        snprintf(Record.semester, sizeof(Record.semester), "%s", Token);
 
-        token = strtok(NULL, ",\n\r");
-        if (token == NULL) {
+        Token = strtok(NULL, ",\n\r");
+        if (Token == NULL) {
             continue;
         }
-        snprintf(record.selected_date, sizeof(record.selected_date), "%s", token);
+        snprintf(Record.selected_date, sizeof(Record.selected_date), "%s", Token);
 
-        token = strtok(NULL, ",\n\r");
-        if (token == NULL) {
+        Token = strtok(NULL, ",\n\r");
+        if (Token == NULL) {
             continue;
         }
-        record.score = atoi(token);
+        Record.score = atoi(Token);
 
-        if (!EnsureCapacity(db)) {
-            fclose(fp);
+        if (!EnsureCapacity(Database)) {
+            fclose(FilePointer);
             return false;
         }
 
-        db->records[db->count++] = record;
+        Database->records[Database->count++] = Record;
     }
 
-    fclose(fp);
+    fclose(FilePointer);
     return true;
 }
 
-bool SaveRecordsToCsv(const RecordDatabase *db, const char *path) {
-    if (db == NULL || path == NULL) {
+bool SaveRecordsToCsv(const RecordDatabase *Database, const char *Path) {
+    if (Database == NULL || Path == NULL) {
         return false;
     }
 
-    FILE *fp = fopen(path, "w");
-    if (fp == NULL) {
+    FILE *FilePointer = fopen(Path, "w");
+    if (FilePointer == NULL) {
         return false;
     }
 
-    fprintf(fp, "学号,姓名,学院,课程编号,课程名称,学分,选课学期,选课日期,成绩\n");
-    for (int i = 0; i < db->count; ++i) {
-        const SelectionRecord *record = &db->records[i];
-        fprintf(fp, "%s,%s,%s,%s,%s,%.1f,%s,%s,%d\n",
-                record->student_id,
-                record->student_name,
-                record->college,
-                record->course_id,
-                record->course_name,
-                record->credit,
-                record->semester,
-                record->selected_date,
-                record->score);
+    fprintf(FilePointer, "学号,姓名,学院,课程编号,课程名称,学分,选课学期,选课日期,成绩\n");
+    for (int Index = 0; Index < Database->count; ++Index) {
+        const SelectionRecord *Record = &Database->records[Index];
+        fprintf(FilePointer, "%s,%s,%s,%s,%s,%.1f,%s,%s,%d\n",
+                Record->student_id,
+                Record->student_name,
+                Record->college,
+                Record->course_id,
+                Record->course_name,
+                Record->credit,
+                Record->semester,
+                Record->selected_date,
+                Record->score);
     }
 
-    fclose(fp);
+    fclose(FilePointer);
     return true;
 }
 
-bool InsertRecord(RecordDatabase *db, const SelectionRecord *record) {
-    if (db == NULL || record == NULL) {
+bool InsertRecord(RecordDatabase *Database, const SelectionRecord *Record) {
+    if (Database == NULL || Record == NULL) {
         return false;
     }
 
-    if (!EnsureCapacity(db)) {
+    if (!EnsureCapacity(Database)) {
         return false;
     }
 
-    db->records[db->count++] = *record;
+    Database->records[Database->count++] = *Record;
     return true;
 }
 
-bool DeleteRecordByKey(RecordDatabase *db, const char *student_id, const char *course_id) {
-    if (db == NULL || student_id == NULL || course_id == NULL) {
+bool DeleteRecordByKey(RecordDatabase *Database, const char *StudentId, const char *CourseId) {
+    if (Database == NULL || StudentId == NULL || CourseId == NULL) {
         return false;
     }
 
-    for (int i = 0; i < db->count; ++i) {
-        if (strcmp(db->records[i].student_id, student_id) == 0 && strcmp(db->records[i].course_id, course_id) == 0) {
-            for (int j = i; j + 1 < db->count; ++j) {
-                db->records[j] = db->records[j + 1];
+    for (int Index = 0; Index < Database->count; ++Index) {
+        if (strcmp(Database->records[Index].student_id, StudentId) == 0 && strcmp(Database->records[Index].course_id, CourseId) == 0) {
+            for (int ShiftIndex = Index; ShiftIndex + 1 < Database->count; ++ShiftIndex) {
+                Database->records[ShiftIndex] = Database->records[ShiftIndex + 1];
             }
-            db->count--;
+            Database->count--;
             return true;
         }
     }
@@ -201,14 +195,14 @@ bool DeleteRecordByKey(RecordDatabase *db, const char *student_id, const char *c
     return false;
 }
 
-bool UpdateRecordScore(RecordDatabase *db, const char *student_id, const char *course_id, int new_score) {
-    if (db == NULL || student_id == NULL || course_id == NULL) {
+bool UpdateRecordScore(RecordDatabase *Database, const char *StudentId, const char *CourseId, int NewScore) {
+    if (Database == NULL || StudentId == NULL || CourseId == NULL) {
         return false;
     }
 
-    for (int i = 0; i < db->count; ++i) {
-        if (strcmp(db->records[i].student_id, student_id) == 0 && strcmp(db->records[i].course_id, course_id) == 0) {
-            db->records[i].score = new_score;
+    for (int Index = 0; Index < Database->count; ++Index) {
+        if (strcmp(Database->records[Index].student_id, StudentId) == 0 && strcmp(Database->records[Index].course_id, CourseId) == 0) {
+            Database->records[Index].score = NewScore;
             return true;
         }
     }
@@ -216,34 +210,34 @@ bool UpdateRecordScore(RecordDatabase *db, const char *student_id, const char *c
     return false;
 }
 
-SelectionRecord *FindRecordByKey(RecordDatabase *db, const char *student_id, const char *course_id) {
-    if (db == NULL || student_id == NULL || course_id == NULL) {
+SelectionRecord *FindRecordByKey(RecordDatabase *Database, const char *StudentId, const char *CourseId) {
+    if (Database == NULL || StudentId == NULL || CourseId == NULL) {
         return NULL;
     }
 
-    for (int i = 0; i < db->count; ++i) {
-        if (strcmp(db->records[i].student_id, student_id) == 0 && strcmp(db->records[i].course_id, course_id) == 0) {
-            return &db->records[i];
+    for (int Index = 0; Index < Database->count; ++Index) {
+        if (strcmp(Database->records[Index].student_id, StudentId) == 0 && strcmp(Database->records[Index].course_id, CourseId) == 0) {
+            return &Database->records[Index];
         }
     }
 
     return NULL;
 }
 
-void PrintAllRecords(const RecordDatabase *db) {
-    if (db == NULL || db->count == 0) {
+void PrintAllRecords(const RecordDatabase *Database) {
+    if (Database == NULL || Database->count == 0) {
         puts("当前没有任何记录。");
         return;
     }
 
-    printf("共 %d 条记录：\n", db->count);
-    for (int i = 0; i < db->count; ++i) {
-        const SelectionRecord *record = &db->records[i];
+    printf("共 %d 条记录：\n", Database->count);
+    for (int Index = 0; Index < Database->count; ++Index) {
+        const SelectionRecord *Record = &Database->records[Index];
         printf("- 学号:%s | 姓名:%s | 课程:%s | 成绩:%d\n",
-               record->student_id,
-               record->student_name,
-               record->course_name,
-               record->score);
+               Record->student_id,
+               Record->student_name,
+               Record->course_name,
+               Record->score);
     }
 }
 

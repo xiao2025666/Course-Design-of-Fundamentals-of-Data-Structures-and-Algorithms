@@ -3,6 +3,7 @@
 #include "avl_tree.h"
 #include "hash_table.h"
 
+/* 链表存储结构的适配器实现 */
 static bool ListInsert(void *storage, const CourseRecord *record) {
     return StudentListAppend((StudentList *)storage, (const StudentRecord *)record);
 }
@@ -22,6 +23,7 @@ static void ListTraverse(void *storage, void (*visit)(const CourseRecord *)) {
     (void)visit;
 }
 
+/* AVL 树存储结构的适配器实现 */
 static bool AvlInsert(void *storage, const CourseRecord *record) {
     return AvlTreeInsert((AvlTree *)storage, record);
 }
@@ -38,6 +40,7 @@ static void AvlTraverse(void *storage, void (*visit)(const CourseRecord *)) {
     AvlTreeTraverse((const AvlTree *)storage, visit);
 }
 
+/* 哈希表存储结构的适配器实现 */
 static bool HashInsert(void *storage, const CourseRecord *record) {
     return HashTableInsert((HashTable *)storage, record);
 }
@@ -54,6 +57,10 @@ static void HashTraverse(void *storage, void (*visit)(const CourseRecord *)) {
     HashTableTraverse((const HashTable *)storage, visit);
 }
 
+/**
+ * @brief 初始化链表适配器。
+ * @details 将统一接口绑定到链表实现上，便于上层统一调用。
+ */
 void InitListAdapter(StorageAdapter *adapter, StudentList *storage) {
     (void)storage;
     adapter->insert = ListInsert;
@@ -62,6 +69,9 @@ void InitListAdapter(StorageAdapter *adapter, StudentList *storage) {
     adapter->traverse = ListTraverse;
 }
 
+/**
+ * @brief 初始化 AVL 适配器。
+ */
 void InitAvlAdapter(StorageAdapter *adapter, AvlTree *storage) {
     adapter->insert = AvlInsert;
     adapter->remove = AvlRemove;
@@ -69,6 +79,9 @@ void InitAvlAdapter(StorageAdapter *adapter, AvlTree *storage) {
     adapter->traverse = AvlTraverse;
 }
 
+/**
+ * @brief 初始化哈希表适配器。
+ */
 void InitHashAdapter(StorageAdapter *adapter, HashTable *storage) {
     adapter->insert = HashInsert;
     adapter->remove = HashRemove;

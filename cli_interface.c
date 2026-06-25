@@ -35,52 +35,52 @@ void PrintMenu(void) {
     puts("请输入选项：");
 }
 
-int RunCli(RecordDatabase *db, const char *default_path) {
-    int choice = 0;
+int RunCli(RecordDatabase *Database, const char *DefaultPath) {
+    int Choice = 0;
 
-    while (choice != 9) {
+    while (Choice != 9) {
         PrintMenu();
-        if (scanf("%d", &choice) != 1) {
+        if (scanf("%d", &Choice) != 1) {
             ClearInputBuffer();
-            choice = 0;
+            Choice = 0;
         }
 
-        switch (choice) {
+        switch (Choice) {
             case 1:
-                PrintAllRecords(db);
+                PrintAllRecords(Database);
                 break;
             case 2: {
-                SelectionRecord record;
-                memset(&record, 0, sizeof(record));
+                SelectionRecord Record;
+                memset(&Record, 0, sizeof(Record));
                 printf("请输入学号：");
-                scanf("%15s", record.student_id);
+                scanf("%15s", Record.student_id);
                 printf("请输入姓名：");
-                scanf("%63s", record.student_name);
+                scanf("%63s", Record.student_name);
                 printf("请输入学院：");
-                scanf("%63s", record.college);
+                scanf("%63s", Record.college);
                 printf("请输入课程编号：");
-                scanf("%15s", record.course_id);
+                scanf("%15s", Record.course_id);
                 printf("请输入课程名称：");
-                scanf("%63s", record.course_name);
+                scanf("%63s", Record.course_name);
                 printf("请输入学分：");
-                scanf("%f", &record.credit);
+                scanf("%f", &Record.credit);
                 printf("请输入学期：");
-                scanf("%7s", record.semester);
+                scanf("%7s", Record.semester);
                 printf("请输入选课日期：");
-                scanf("%11s", record.selected_date);
+                scanf("%11s", Record.selected_date);
                 printf("请输入成绩：");
-                scanf("%d", &record.score);
-                InsertRecord(db, &record);
+                scanf("%d", &Record.score);
+                InsertRecord(Database, &Record);
                 break;
             }
             case 3: {
-                char student_id[MAX_ID_LEN];
-                char course_id[MAX_ID_LEN];
+                char StudentId[MAX_ID_LEN];
+                char CourseId[MAX_ID_LEN];
                 printf("请输入学号：");
-                scanf("%15s", student_id);
+                scanf("%15s", StudentId);
                 printf("请输入课程编号：");
-                scanf("%15s", course_id);
-                if (DeleteRecordByKey(db, student_id, course_id)) {
+                scanf("%15s", CourseId);
+                if (DeleteRecordByKey(Database, StudentId, CourseId)) {
                     puts("删除成功。" );
                 } else {
                     puts("删除失败。" );
@@ -88,16 +88,16 @@ int RunCli(RecordDatabase *db, const char *default_path) {
                 break;
             }
             case 4: {
-                char student_id[MAX_ID_LEN];
-                char course_id[MAX_ID_LEN];
-                int new_score = 0;
+                char StudentId[MAX_ID_LEN];
+                char CourseId[MAX_ID_LEN];
+                int NewScore = 0;
                 printf("请输入学号：");
-                scanf("%15s", student_id);
+                scanf("%15s", StudentId);
                 printf("请输入课程编号：");
-                scanf("%15s", course_id);
+                scanf("%15s", CourseId);
                 printf("请输入新成绩：");
-                scanf("%d", &new_score);
-                if (UpdateRecordScore(db, student_id, course_id, new_score)) {
+                scanf("%d", &NewScore);
+                if (UpdateRecordScore(Database, StudentId, CourseId, NewScore)) {
                     puts("更新成功。" );
                 } else {
                     puts("更新失败。" );
@@ -105,56 +105,56 @@ int RunCli(RecordDatabase *db, const char *default_path) {
                 break;
             }
             case 5: {
-                char student_id[MAX_ID_LEN];
-                char course_id[MAX_ID_LEN];
+                char StudentId[MAX_ID_LEN];
+                char CourseId[MAX_ID_LEN];
                 printf("请输入学号：");
-                scanf("%15s", student_id);
+                scanf("%15s", StudentId);
                 printf("请输入课程编号：");
-                scanf("%15s", course_id);
-                SelectionRecord *record = FindRecordByKey(db, student_id, course_id);
-                if (record != NULL) {
-                    printf("找到记录：%s | %s | %d\n", record->student_name, record->course_name, record->score);
+                scanf("%15s", CourseId);
+                SelectionRecord *Record = FindRecordByKey(Database, StudentId, CourseId);
+                if (Record != NULL) {
+                    printf("找到记录：%s | %s | %d\n", Record->student_name, Record->course_name, Record->score);
                 } else {
                     puts("未找到记录。" );
                 }
                 break;
             }
             case 6: {
-                char course_name[MAX_TEXT_LEN];
-                char semester[MAX_SEMESTER_LEN];
-                char college[MAX_TEXT_LEN];
-                int min_score = 0;
-                int max_score = 100;
-                memset(course_name, 0, sizeof(course_name));
-                memset(semester, 0, sizeof(semester));
-                memset(college, 0, sizeof(college));
+                char CourseName[MAX_TEXT_LEN];
+                char Semester[MAX_SEMESTER_LEN];
+                char College[MAX_TEXT_LEN];
+                int MinScore = 0;
+                int MaxScore = 100;
+                memset(CourseName, 0, sizeof(CourseName));
+                memset(Semester, 0, sizeof(Semester));
+                memset(College, 0, sizeof(College));
                 printf("请输入课程名称（可留空）：");
-                scanf("%63s", course_name);
+                scanf("%63s", CourseName);
                 printf("请输入学期（可留空）：");
-                scanf("%7s", semester);
+                scanf("%7s", Semester);
                 printf("请输入学院（可留空）：");
-                scanf("%63s", college);
+                scanf("%63s", College);
                 printf("请输入最低成绩：");
-                scanf("%d", &min_score);
+                scanf("%d", &MinScore);
                 printf("请输入最高成绩：");
-                scanf("%d", &max_score);
-                FilterAndPrint(db, course_name, semester, college, min_score, max_score);
+                scanf("%d", &MaxScore);
+                FilterAndPrint(Database, CourseName, Semester, College, MinScore, MaxScore);
                 break;
             }
             case 7:
-                ShowStatistics(db);
+                ShowStatistics(Database);
                 break;
             case 8: {
-                char base_date[MAX_DATE_LEN];
+                char BaseDate[MAX_DATE_LEN];
                 printf("请输入基准日期（YYYY-MM-DD）：");
-                scanf("%11s", base_date);
-                int removed = DeleteExpiredRecords(db, base_date);
-                printf("已删除 %d 条过期记录。\n", removed);
+                scanf("%11s", BaseDate);
+                int Removed = DeleteExpiredRecords(Database, BaseDate);
+                printf("已删除 %d 条过期记录。\n", Removed);
                 break;
             }
             case 9:
-                if (default_path != NULL) {
-                    SaveRecordsToCsv(db, default_path);
+                if (DefaultPath != NULL) {
+                    SaveRecordsToCsv(Database, DefaultPath);
                 }
                 puts("已保存并退出。\n");
                 break;

@@ -4,13 +4,13 @@ SOURCES = $(filter-out src/data_generator.c,$(wildcard src/*.c))
 TARGET = 选课系统.exe
 
 all:
-	@chcp 936 >nul
+	@chcp 65001 >nul
 	$(CC) $(CFLAGS) $(SOURCES) -o $(TARGET)
 
 generator:
-	@chcp 936 >nul
+	@chcp 65001 >nul
 	$(CC) $(CFLAGS) src/data_generator.c -o data_generator.exe
 
 clean:
-	@chcp 936 >nul
-	del /Q $(TARGET) data_generator.exe 2>NUL
+	@chcp 65001 >nul
+	del /Q $(TARGET) data_generator.exe 2>NUL 

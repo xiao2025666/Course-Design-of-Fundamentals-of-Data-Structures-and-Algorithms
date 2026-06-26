@@ -2,9 +2,23 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#ifdef _WIN32
+#include <windows.h>
+#endif
+
 #include "cli_interface.h"
 #include "file_io.h"
 #include "record_system.h"
+
+static void InitConsoleEncoding(void) {
+#ifdef _WIN32
+    SetConsoleCP(936);
+    SetConsoleOutputCP(936);
+#endif
+    if (setlocale(LC_ALL, ".936") == NULL) {
+        setlocale(LC_ALL, "");
+    }
+}
 
 /**
  * @file main.c
@@ -23,7 +37,7 @@
 int main(int argc, char *argv[]) {
     const char *DataPath = (argc >= 2) ? argv[1] : "data/records.csv";
 
-    setlocale(LC_ALL, "");
+    InitConsoleEncoding();
 
     RecordDatabase Database;
     RecordDatabaseInit(&Database);

@@ -20,6 +20,12 @@
 #include <string.h>
 #include <time.h>
 
+#ifdef _WIN32
+#include <windows.h>
+#endif
+
+#include <locale.h>
+
 #define MAX_LINE_LEN 512//定义最大行数,防止缓冲区溢出导致安全问题
 
 
@@ -237,6 +243,16 @@ static void ensure_output_directory(const char *path) {
     dir[len] = '\0'; // 以空字符结束目录字符串
 }
 
+static void InitConsoleEncoding(void) {
+#ifdef _WIN32
+    SetConsoleCP(936);
+    SetConsoleOutputCP(936);
+#endif
+    if (setlocale(LC_ALL, ".936") == NULL) {
+        setlocale(LC_ALL, "");
+    }
+}
+
 /* ---------- 主函数 ---------- */
 /**
  * @brief 程序入口，生成指定数量的选课测试数据并保存为CSV文件
@@ -245,6 +261,8 @@ static void ensure_output_directory(const char *path) {
  * @return 返回0表示成功，非0表示失败
  */
 int main(int argc, char *argv[]) {
+    InitConsoleEncoding();
+
     int record_count = 100;                   // 默认生成记录数量
     const char *output_file = "data/records.csv"; // 默认输出文件路径
 

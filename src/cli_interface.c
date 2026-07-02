@@ -43,7 +43,9 @@ int RunCli(RecordDatabase *Database, const char *DefaultPath) {
         if (scanf("%d", &Choice) != 1) {
             ClearInputBuffer();
             Choice = 0;
+            continue;          // 避免无效 Choice 进入 switch
         }
+        ClearInputBuffer();    // ← 关键改动：立即清除残留换行符
 
         switch (Choice) {
             case 1:
@@ -70,6 +72,7 @@ int RunCli(RecordDatabase *Database, const char *DefaultPath) {
                 scanf("%11s", Record.selected_date);
                 printf("请输入成绩：");
                 scanf("%d", &Record.score);
+                ClearInputBuffer();   // 清除 scanf 残留的换行，不影响下次菜单
                 InsertRecord(Database, &Record);
                 break;
             }
@@ -80,6 +83,7 @@ int RunCli(RecordDatabase *Database, const char *DefaultPath) {
                 scanf("%15s", StudentId);
                 printf("请输入课程编号：");
                 scanf("%15s", CourseId);
+                ClearInputBuffer();
                 if (DeleteRecordByKey(Database, StudentId, CourseId)) {
                     puts("删除成功。" );
                 } else {
@@ -97,6 +101,7 @@ int RunCli(RecordDatabase *Database, const char *DefaultPath) {
                 scanf("%15s", CourseId);
                 printf("请输入新成绩：");
                 scanf("%d", &NewScore);
+                ClearInputBuffer();
                 if (UpdateRecordScore(Database, StudentId, CourseId, NewScore)) {
                     puts("更新成功。" );
                 } else {
@@ -111,6 +116,7 @@ int RunCli(RecordDatabase *Database, const char *DefaultPath) {
                 scanf("%15s", StudentId);
                 printf("请输入课程编号：");
                 scanf("%15s", CourseId);
+                ClearInputBuffer();
                 SelectionRecord *Record = FindRecordByKey(Database, StudentId, CourseId);
                 if (Record != NULL) {
                     printf("找到记录：%s | %s | %d\n", Record->student_name, Record->course_name, Record->score);
@@ -128,16 +134,32 @@ int RunCli(RecordDatabase *Database, const char *DefaultPath) {
                 memset(CourseName, 0, sizeof(CourseName));
                 memset(Semester, 0, sizeof(Semester));
                 memset(College, 0, sizeof(College));
+                // 现在缓冲区是干净的，第一个 fgets 会正常等待
                 printf("请输入课程名称（可留空）：");
-                scanf("%63s", CourseName);
+                fgets(CourseName, sizeof(CourseName), stdin);
+                size_t len = strlen(CourseName);
+                if (len > 0 && CourseName[len-1] == '\n') {
+                    CourseName[len-1] = '\0';
+                }
                 printf("请输入学期（可留空）：");
-                scanf("%7s", Semester);
+                fgets(Semester, sizeof(Semester), stdin);
+                len = strlen(Semester);
+                if (len > 0 && Semester[len-1] == '\n') {
+                    Semester[len-1] = '\0';
+                }
                 printf("请输入学院（可留空）：");
-                scanf("%63s", College);
+                fgets(College, sizeof(College), stdin);
+                len = strlen(College);
+                if (len > 0 && College[len-1] == '\n') {
+                    College[len-1] = '\0';
+                }
                 printf("请输入最低成绩：");
                 scanf("%d", &MinScore);
+                ClearInputBuffer();   // 清除成绩输入的换行
                 printf("请输入最高成绩：");
                 scanf("%d", &MaxScore);
+                ClearInputBuffer();
+
                 FilterAndPrint(Database, CourseName, Semester, College, MinScore, MaxScore);
                 break;
             }
@@ -148,6 +170,7 @@ int RunCli(RecordDatabase *Database, const char *DefaultPath) {
                 char BaseDate[MAX_DATE_LEN];
                 printf("请输入基准日期（YYYY-MM-DD）：");
                 scanf("%11s", BaseDate);
+                ClearInputBuffer();
                 int Removed = DeleteExpiredRecords(Database, BaseDate);
                 printf("已删除 %d 条过期记录。\n", Removed);
                 break;
@@ -163,7 +186,7 @@ int RunCli(RecordDatabase *Database, const char *DefaultPath) {
                 break;
         }
 
-        ClearInputBuffer();
+        // 注意：这里不再需要 ClearInputBuffer()，因为每次循环开头已经清除了
     }
 
     return 0;

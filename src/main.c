@@ -1,6 +1,7 @@
 ﻿#include <locale.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #ifdef _WIN32
 #include <windows.h>
@@ -8,6 +9,7 @@
 
 #include "cli_interface.h"
 #include "file_io.h"
+#include "performance_test.h"
 #include "record_system.h"
 
 static void InitConsoleEncoding(void) {
@@ -35,6 +37,11 @@ static void InitConsoleEncoding(void) {
  * 该文件负责初始化系统，并将控制权交给命令行交互模块与记录管理模块。
  */
 int main(int argc, char *argv[]) {
+    if (argc >= 2 && (strcmp(argv[1], "--perf") == 0 || strcmp(argv[1], "perf") == 0)) {
+        RunPerformanceDemo();
+        return 0;
+    }
+
     const char *DataPath = (argc >= 2) ? argv[1] : "data/records.csv";
 
     InitConsoleEncoding();
